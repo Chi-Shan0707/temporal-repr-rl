@@ -1,8 +1,8 @@
 """
 environments/wrappers.py — Observation wrappers for temporal encoding experiments.
 
-Takes raw observations from FrozenLake/DoorGrid/SokobanGate and produces
-flat observation vectors with configurable time encoding appended.
+Takes raw observations from FrozenLake/DoorGrid/SokobanGate/CyclicCorridor and
+produces flat observation vectors with configurable time encoding appended.
 
 Encoding modes:
   'none'       → obs unchanged (agent must learn time from recurrence)
@@ -20,11 +20,9 @@ import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
 
-# Import existing temporal environments
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from reproduction.experiments.temporal_environments import (
-    FrozenLake, DoorGridLarge, SokobanGate,
-    UP, DOWN, LEFT, RIGHT,
+    FrozenLake, DoorGridLarge, SokobanGate, CyclicCorridor,
 )
 
 
@@ -38,18 +36,85 @@ def sinusoidal_encode(t: int, dim: int, base: float = 10000.0) -> np.ndarray:
     return pe
 
 
+def _is_2d_grid(env) -> bool:
+    """Check if environment uses 2D grid positions (tuple) vs 1D (int)."""
+    return hasattr(env, 'ROWS') and hasattr(env, 'COLS')
+
+
+def _n_actions(env) -> int:
+    """Infer number of actions from environment."""
+    if hasattr(env, 'N_ACTIONS'):
+        return env.N_ACTIONS
+    return 4  # default: UP, DOWN, LEFT, RIGHT
+
+
+def _obs_dim(env) -> int:
+    """Infer base observation dimension from environment."""
+    if isinstance(env, CyclicCorridor):
+        return env.N_CELLS
+    if isinstance(env, SokobanGate):
+        return env.ROWS * env.COLS + 2
+    if _is_2d_grid(env):
+        return env.ROWS * env.COLS
+    return 16  # fallback
+
+
+def _onehot_pos(env) -> np.ndarray:
+    """Get one-hot position encoding, works for both 1D and 2D environments."""
+    dim = _obs_dim(env)
+    obs = np.zeros(dim, dtype=np.float32)
+
+    if isinstance(env, CyclicCorridor):
+        obs[env.agent_pos] = 1.0
+    elif isinstance(env, SokobanGate):
+        # Grid + player position
+        grid = np.zeros(env.ROWS * env.COLS, dtype=np.float32)
+        for r in range(env.ROWS):
+            for c in range(env.COLS):
+                if (r, c) in env.WALLS:
+                    grid[r * env.COLS + c] = 0.2
+        for box in env.boxes:
+            grid[box[0] * env.COLS + box[1]] = 0.6
+        grid[env.TARGET[0] * env.COLS + env.TARGET[1]] = 0.8
+        pr, pc = env.player_pos
+        pos = np.array([pr / (env.ROWS - 1), pc / (env.COLS - 1)], dtype=np.float32)
+        return np.concatenate([grid, pos])
+    else:
+        # 2D grid: FrozenLake, DoorGridLarge
+        pos = env.agent_pos
+        idx = pos[0] * env.COLS + pos[1]
+        obs[idx] = 1.0
+    return obs
+
+
+def _reward_shaped(env, terminated: float) -> float:
+    """Compute shaped reward. Works for all environments via duck typing."""
+    goal_attr = None
+    for attr in ('GOAL', 'goal', 'TARGET'):
+        if hasattr(env, attr):
+            goal_attr = attr
+            break
+
+    if goal_attr == 'TARGET':
+        # SokobanGate: goal is a box position
+        if terminated and env.TARGET in env.boxes:
+            return 1.0
+    elif goal_attr:
+        goal = getattr(env, goal_attr)
+        agent = env.agent_pos if hasattr(env, 'agent_pos') else env.player_pos
+        if terminated and agent == goal:
+            return 1.0
+
+    return -0.01 if not terminated else -1.0
+
+
 class TemporalObsWrapper:
     """Wraps a temporal environment to produce flat obs with time encoding.
 
-    Not a gym.Wrapper because the underlying envs (FrozenLake etc.)
-    are plain Python classes, not gymnasium.Envs.
-
-    The underlying env must have:
-      - .timestep property (int)
-      - .PERIOD class attribute (int)
-      - .mode attribute ('static' or 'temporal')
-      - ._state_key() method (for getting the raw state)
-      - 4 discrete actions
+    Works with any environment that exposes:
+      - .timestep (int)
+      - .PERIOD (int class attribute)
+      - .mode ('static' or 'temporal')
       - .reset() → state
       - .step(action) → (state, reward, terminated, truncated)
     """
@@ -61,35 +126,23 @@ class TemporalObsWrapper:
         max_steps: int = 100,
         sinusoidal_dim: int = 8,
     ):
-        self.env = env  # not using gym.Wrapper, store explicitly
+        self.env = env
         self.time_encoding = time_encoding
         self.max_steps = max_steps
         self.sinusoidal_dim = sinusoidal_dim
         self.period = getattr(env, "PERIOD", 1)
-        self.n_actions = 4  # all environments have 4 discrete actions
+        self.n_actions = _n_actions(env)
 
-        # Compute base obs dim from the environment
-        base_dim = self._base_obs_dim()
+        base_dim = _obs_dim(env)
         time_dim = self._time_dim()
         self.obs_dim = base_dim + time_dim
 
         self.observation_space = spaces.Box(
-            low=-1.0, high=1.0, shape=(base_dim + time_dim,), dtype=np.float32
+            low=-1.0, high=1.0, shape=(self.obs_dim,), dtype=np.float32
         )
         self.action_space = spaces.Discrete(self.n_actions)
 
-    def _base_obs_dim(self) -> int:
-        """Infer base observation dimension from environment type."""
-        if isinstance(self.env, FrozenLake):
-            return self.env.ROWS * self.env.COLS  # 16
-        elif isinstance(self.env, DoorGridLarge):
-            return self.env.ROWS * self.env.COLS  # 64
-        elif isinstance(self.env, SokobanGate):
-            return self.env.ROWS * self.env.COLS + 2  # 38
-        return 16  # fallback
-
     def _time_dim(self) -> int:
-        """Number of additional features for the chosen encoding."""
         if self.time_encoding == "none":
             return 0
         elif self.time_encoding == "raw":
@@ -102,39 +155,7 @@ class TemporalObsWrapper:
             return self.period
         raise ValueError(f"Unknown encoding: {self.time_encoding}")
 
-    def _get_base_obs(self) -> np.ndarray:
-        """Get base observation as flat vector."""
-        if isinstance(self.env, FrozenLake):
-            obs = np.zeros(self.env.ROWS * self.env.COLS, dtype=np.float32)
-            pos = self.env.agent_pos
-            idx = pos[0] * self.env.COLS + pos[1]
-            obs[idx] = 1.0
-            return obs
-        elif isinstance(self.env, DoorGridLarge):
-            obs = np.zeros(self.env.ROWS * self.env.COLS, dtype=np.float32)
-            pos = self.env.agent_pos
-            idx = pos[0] * self.env.COLS + pos[1]
-            obs[idx] = 1.0
-            return obs
-        elif isinstance(self.env, SokobanGate):
-            # Encode as: grid_flat (walls/boxes/player/targets) + player_pos
-            grid = np.zeros(self.env.ROWS * self.env.COLS, dtype=np.float32)
-            for r in range(self.env.ROWS):
-                for c in range(self.env.COLS):
-                    if (r, c) in self.env.WALLS:
-                        grid[r * self.env.COLS + c] = 0.2
-            for box in self.env.boxes:
-                grid[box[0] * self.env.COLS + box[1]] = 0.6
-            grid[self.env.TARGET[0] * self.env.COLS + self.env.TARGET[1]] = 0.8
-            pr, pc = self.env.player_pos
-            pos = np.array(
-                [pr / (self.env.ROWS - 1), pc / (self.env.COLS - 1)], dtype=np.float32
-            )
-            return np.concatenate([grid, pos])
-        return np.zeros(16, dtype=np.float32)
-
     def _get_time_features(self) -> np.ndarray:
-        """Get temporal encoding features."""
         t = self.env.timestep
         phase = t % self.period
 
@@ -156,36 +177,17 @@ class TemporalObsWrapper:
         return np.array([], dtype=np.float32)
 
     def reset(self, **kwargs):
-        state = self.env.reset()
-        base = self._get_base_obs()
+        self.env.reset()
+        base = _onehot_pos(self.env)
         time_feat = self._get_time_features()
         return np.concatenate([base, time_feat]), {}
 
     def step(self, action):
         state, reward, terminated, truncated = self.env.step(action)
-        base = self._get_base_obs()
+        base = _onehot_pos(self.env)
         time_feat = self._get_time_features()
         obs = np.concatenate([base, time_feat])
-
-        # Reward shaping: small living penalty + goal bonus
-        if isinstance(self.env, FrozenLake):
-            if terminated and self.env.agent_pos == self.env.goal:
-                reward = 1.0
-            elif terminated:
-                reward = -1.0
-            else:
-                reward = -0.01
-        elif isinstance(self.env, DoorGridLarge):
-            if terminated and self.env.agent_pos == self.env.GOAL:
-                reward = 1.0
-            else:
-                reward = -0.01
-        elif isinstance(self.env, SokobanGate):
-            if terminated and self.env.TARGET in self.env.boxes:
-                reward = 1.0
-            else:
-                reward = -0.01
-
+        reward = _reward_shaped(self.env, terminated)
         return obs, reward, terminated, truncated, {}
 
     @property
@@ -198,5 +200,6 @@ class TemporalObsWrapper:
 
     @property
     def physical_state(self):
-        """Return the physical state (without time) for analysis."""
-        return self.env._state_key()
+        if hasattr(self.env, '_state_key'):
+            return self.env._state_key()
+        return self.env.agent_pos

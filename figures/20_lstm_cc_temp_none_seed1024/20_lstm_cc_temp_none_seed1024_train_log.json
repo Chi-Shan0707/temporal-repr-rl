@@ -1,0 +1,6 @@
+{
+  "final_avg_reward": 0.95,
+  "best_eval_reward": 0.9499999999999998,
+  "train_time_s": 106.83548760414124,
+  "n_episodes": 5000
+}

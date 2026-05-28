@@ -1,0 +1,59 @@
+{
+  "experiment": "20_lstm_cc_temp_none_seed1024",
+  "probe_timestep": {
+    "r2": 0.9999998211860657,
+    "r2_shuffled": -0.026687264442443848,
+    "top_dims": [
+      58,
+      19,
+      21,
+      61,
+      63
+    ],
+    "n_samples": 1200
+  },
+  "probe_phase": {
+    "accuracy": 1.0,
+    "accuracy_shuffled": 0.0,
+    "n_classes": 6
+  },
+  "fourier": {
+    "error": "No valid episode segments for FFT"
+  },
+  "pca": {
+    "pc1_timestep_corr": -0.9336332686571284,
+    "pc2_timestep_corr": -0.3538327314918846,
+    "pc1_phase_corr": -0.9336332686571284,
+    "explained_variance_ratio": [
+      0.9556594491004944,
+      0.040963273495435715,
+      0.0023428762797266245,
+      0.0008466463768854737,
+      0.0001735247642500326,
+      2.516399263186031e-06,
+      1.0092010143125663e-06,
+      8.920937375478388e-07,
+      8.356475404980301e-07,
+      7.535007853221032e-07
+    ],
+    "pc1_explained_variance": 0.9556594491004944
+  },
+  "cka": {
+    "raw_scalar": 0.8762354991455237,
+    "sinusoidal_pe": 0.7519464492797852,
+    "phase_sin_cos": 0.8865256860069731,
+    "onehot_phase": 0.46696004271507263,
+    "remaining_time": 0.8762354991455235
+  },
+  "mi_binning": {
+    "mi": 1.7917594692280547,
+    "mi_normalized": 1.0,
+    "h_t": 1.7917594692280547,
+    "n_bins": 20
+  },
+  "mi_ksg": {
+    "mi": 0.0,
+    "k": 5,
+    "n_samples": 1200
+  }
+}

@@ -14,19 +14,21 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from .wrappers import TemporalObsWrapper
 from reproduction.experiments.temporal_environments import (
-    FrozenLake, DoorGridLarge, SokobanGate,
+    FrozenLake, DoorGridLarge, SokobanGate, CyclicCorridor,
 )
 
 ENVS = {
     "frozenlake": FrozenLake,
     "doorgrid": DoorGridLarge,
     "sokoban_gate": SokobanGate,
+    "cyclic_corridor": CyclicCorridor,
 }
 
 ENV_MAX_STEPS = {
     "frozenlake": 50,
     "doorgrid": 80,
     "sokoban_gate": 120,
+    "cyclic_corridor": 200,
 }
 
 

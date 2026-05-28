@@ -27,7 +27,7 @@ Using CKA comparison with engineered encodings, linear probing, and PCA, we find
 These findings challenge the implicit assumption that recurrent networks discover a single canonical temporal code, and suggest that the framing of time in learned representations is contingent on optimization path and task structure.
 }
 
-\contribution{We show that temporal encoding in recurrent RL agents is not unique—different training runs produce different internal clocks despite identical behavior.}{Challenges the implicit ``canonical temporal code'' assumption in RL representation analysis.}
+\contribution{We show that temporal encoding in recurrent RL agents is not unique on complex environments---different training runs produce different internal clocks---but converges to a single code on simpler ones.}{Challenges the ``canonical temporal code'' assumption and links plurality to environment complexity.}
 \contribution{We demonstrate that the representational geometry shifts with temporal horizon, from sinusoidal-like to scalar-like encoding.}{Links task structure to the learned framing of time, with implications for transfer and generalization.}
 \contribution{We provide a simple, controlled methodology (CKA against engineered codes + multi-seed comparison) for testing uniqueness assumptions about learned representations.}{Applicable beyond time to other latent task variables.}
 
@@ -41,11 +41,11 @@ Recurrent RL agents without an explicit clock must invent their own internal rep
 A natural assumption is that this representation is unique: any sufficiently trained agent converges to the same canonical temporal code.
 We show this assumption does not hold.
 LSTM agents trained on the same periodic task construct different temporal codes depending on their random initialization, despite identical behavioral performance.
-Using Centered Kernel Alignment (CKA) against engineered temporal encodings, linear probing, and PCA on a periodic gridworld, we ask three questions: (Q1) Is temporal structure learned or inherent to recurrence?
+Using CKA, linear probing, and PCA on two periodic environments---a 2D gridworld (DoorGrid) and a 1D ring (Cyclic Corridor)---we ask three questions: (Q1) Is temporal structure learned or inherent to recurrence?
 (Q2) Is the emergent encoding unique across training runs?
 (Q3) How does the encoding depend on the temporal horizon?
-Untrained LSTM controls show weak temporal structure, which emerges reliably after RL training.
-Multi-seed experiments reveal that the learned encoding is \emph{non-unique}: the highest-CKA engineered encoding varies across seeds, from sinusoidal positional encoding to phase-based encoding.
+On DoorGrid, the learned encoding is \emph{non-unique}: the highest-CKA engineered encoding varies across seeds, from sinusoidal positional encoding to phase-based encoding.
+On Cyclic Corridor, all seeds converge to the same encoding, suggesting that plurality depends on environment complexity.
 A controlled horizon manipulation shows that the encoding is also \emph{horizon-sensitive}: at short horizons, agents align with sinusoidal codes; at longer horizons, alignment shifts toward scalar encoding.
 These findings hold implications for how we interpret recurrent representations: if there is no single canonical temporal code, single-seed representational analyses may not generalize.
 \end{abstract}
@@ -110,6 +110,12 @@ Episodes terminate upon reaching the goal, hitting a hazard, or exceeding a step
 For horizon scaling, we vary $T \in \{4, 8, 16, 32\}$; the door is open during the first half of each period and closed during the second half.
 
 This minimal environment isolates temporal encoding from complex spatial navigation: the periodic structure is the agent's primary challenge.
+
+\textbf{Cyclic Corridor} is a 1D ring of 32 cells with a periodic door at cell 15 (open during the first half of each period, closed during the second half).
+The goal is at cell 26; the agent starts at cell 0 and can move left or right (wrapping around).
+With $T = 16$, the state space is $32 \times 16 = 512$.
+This environment strips away all spatial complexity: there is no 2D navigation, no branching paths---only a periodic obstacle on a ring.
+If representational plurality depends on the complexity of the spatial task, Cyclic Corridor should produce more uniform encoding across seeds than DoorGrid.
 
 \subsection{Agents and Training}
 
@@ -195,11 +201,33 @@ Cross-seed CKA between the agents' own hidden states (aligned by timestep) is un
 The plurality we identify is not in the raw hidden-state structure but in the \emph{alignment with specific engineered codes}: the same population geometry can be more or less similar to different candidate temporal codes depending on initialization.
 
 \textbf{Single-neuron evidence.}
-We identify the 8 hidden dimensions with highest phase selectivity ($s_d \approx 1.0$ for all seeds) as ``time cells.''
-Across all 10 pairs of seeds, the mean overlap in top-8 time cell dimensions is 1.8/8 (mean Jaccard index $= 0.14$).
-However, with 34 of 64 dimensions showing near-maximal selectivity ($s_d > 0.9$), the hypergeometric expectation for random overlap is $8 \times 8 / 34 \approx 1.88$---making the observed overlap indistinguishable from chance.
-We therefore do not treat single-neuron overlap as evidence for or against representational plurality; the population-level CKA differences (above) provide the stronger signal.
-Because hidden-unit indices are not aligned across independently trained models, we treat the overlap analysis as descriptive (see Appendix~\ref{app:neurons} for per-seed details).
+The top-8 phase-selective dimensions show low overlap across seeds (1.8/8, Jaccard $= 0.14$), but this is indistinguishable from chance given that 34 of 64 dimensions have near-maximal selectivity (hypergeometric expectation $\approx 1.88$).
+We do not treat single-neuron overlap as evidence for or against plurality; the population-level CKA differences provide the stronger signal.
+
+\subsection{Plurality Depends on Environment Complexity}
+\label{sec:cyclic}
+
+\begin{table}[t]
+\centering
+\caption{CKA (mean $\pm$ std across 5 seeds) on Cyclic Corridor ($T = 16$).
+All seeds converge to phase sin/cos as the best match---unlike DoorGrid, where the preferred encoding varies across seeds.}
+\label{tab:cyclic}
+\begin{tabular}{lc}
+\toprule
+\textbf{Encoding} & \textbf{CKA (mean $\pm$ std)} \\
+\midrule
+Raw scalar ($t/T$)            & $0.885 \pm 0.010$ \\
+Sinusoidal PE                 & $0.760 \pm 0.007$ \\
+Phase sin/cos                 & $\mathbf{0.896 \pm 0.010}$ \\
+One-hot phase                 & $0.471 \pm 0.005$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+To test whether representational plurality is specific to environments with spatial complexity, we repeat the multi-seed experiment on Cyclic Corridor.
+Table~\ref{tab:cyclic} shows a striking contrast with DoorGrid: all 5 seeds agree on phase sin/cos as the best-matching encoding, with low variance (CKA std $= 0.010$ vs.\ $0.21$ for phase sin/cos on DoorGrid).
+The 1D ring eliminates spatial ambiguity, and with it, the seed-dependent encoding variability observed on DoorGrid.
+This suggests that representational plurality emerges when the environment offers multiple viable encoding strategies---not as a universal property of recurrent networks.
 
 \subsection{The Framing Shifts with Temporal Horizon (Q3)}
 \label{sec:horizon}
@@ -286,35 +314,26 @@ coordinates {
 
 \section{Discussion}
 
-LSTM-based RL agents do not converge to a single canonical temporal code.
-The code they learn depends on their initialization, and which engineered encoding it resembles shifts with the task's temporal horizon.
+LSTM-based RL agents do not converge to a single canonical temporal code---at least not in environments with spatial complexity.
+On DoorGrid, the code depends on initialization, and which engineered encoding it resembles shifts with the task's temporal horizon.
+On the simpler Cyclic Corridor, all seeds converge to the same encoding (phase sin/cos), suggesting that plurality is a property of the environment, not of the learning algorithm.
 These findings hold implications for how we interpret recurrent representations.
 
-\textbf{No canonical internal clock.}
-The assumption that recurrent networks provide a unified, well-defined temporal code is embedded in much of RL practice---for example, when comparing representations across seeds or architectures, or when interpreting hidden states as encoding specific task variables.
-Our results indicate that, at least in simple periodic environments, this assumption does not hold: the framing of time is contingent on optimization path and task structure.
-This has direct methodological implications: a study using only seed 42 would conclude ``LSTMs encode time via sinusoidal-like codes,'' while a study using only seed 456 would conclude ``LSTMs encode time via phase-based codes.''
+\textbf{Plurality is environment-dependent.}
+The assumption that recurrent networks provide a unified, well-defined temporal code is embedded in much of RL practice.
+Our results show this assumption is environment-dependent: on DoorGrid, the framing of time is contingent on optimization path, but on Cyclic Corridor, all seeds converge to the same code.
+Plurality arises when the environment offers multiple viable encoding strategies, not as a universal property of recurrent learning.
+
+\textbf{Interpretability and representation.}
+If temporal codes are non-unique, then ``what the agent has learned'' is not a well-defined mapping from task to internal code, but one of many functionally equivalent solutions.
+This matches \citet{edelman2001degeneracy}'s concept of degeneracy---structurally different elements performing the same function---and suggests that single-seed interpretability analyses may be misleading.
+A study using only seed 42 would conclude ``LSTMs encode time via sinusoidal-like codes,'' while seed 456 would suggest phase-based codes.
 Neither generalizes.
 
-\textbf{Interpretability.}
-The representational plurality we observe raises a question for RL interpretability: if the temporal code is not unique, what does it mean to ``interpret'' a neuron as a time cell?
-The same functional role (phase discrimination) is implemented by different neuronal subpopulations across seeds.
-This matches \citet{edelman2001degeneracy}'s concept of degeneracy---structurally different elements performing the same function---and suggests that single-seed interpretability analyses may be misleading.
-
-\textbf{What does ``representation'' mean in RL?}
-If temporal codes are non-unique, then ``what the agent has learned'' is not a well-defined mapping from task to internal code, but one of many functionally equivalent solutions.
-This is Edelman's \emph{degeneracy} (many-to-one structure-to-function mapping), not mere \emph{redundancy} (duplicate copies of the same structure): the solutions differ qualitatively, not just numerically.
-If the code is path-dependent, then any single-seed analysis characterizes one solution among many, not a canonical internal structure.
-Whether this plurality is a nuisance for interpretability or a genuine feature of learning systems is open.
-
-\textbf{Scope and limitations.}
-We do not claim a universal taxonomy of temporal coding in RL.
-Instead, we isolate one setting where temporal structure can be controlled and representation geometry inspected directly.
-Three caveats:
-First, our experiments use one environment, one algorithm (REINFORCE), and one architecture (single-layer LSTM).
-Second, at $T = 32$, training instability (2/5 seeds fail) limits the horizon analysis.
-Third, CKA measures linear similarity and may miss nonlinear encoding strategies.
-Whether representational plurality persists across architectures (GRUs, attention-based models) and in more complex domains remains to be tested.
+\textbf{Limitations.}
+Two caveats: first, our experiments use two environments, one algorithm (REINFORCE), and one architecture (single-layer LSTM).
+Second, CKA measures linear similarity and may miss nonlinear encoding strategies.
+Whether representational plurality persists across architectures and in more complex domains remains to be tested.
 
 \bibliographystyle{plainnat}
 \bibliography{temporal_repr_refs}
