@@ -38,13 +38,13 @@ These findings challenge the implicit assumption that recurrent networks discove
 
 \begin{abstract}
 Recurrent RL agents that must track time without an explicit clock have to invent their own internal framing of the temporal dimension.
-A natural assumption is that this framing is unique---that any sufficiently trained agent converges to the same canonical temporal code.
-We show this assumption is wrong: LSTM agents trained on the same periodic task construct fundamentally different internal representations of time depending on their random initialization.
+A natural assumption is that this framing is unique: any sufficiently trained agent converges to the same canonical temporal code.
+We show this assumption does not hold: LSTM agents trained on the same periodic task construct different internal representations of time depending on their random initialization.
 Using Centered Kernel Alignment (CKA) against engineered temporal encodings, linear probing, and PCA on DoorGrid, an environment with periodic dynamics, we ask three questions: (Q1) Is temporal structure learned or inherent to recurrence?
 (Q2) Is the emergent encoding unique across training runs?
 (Q3) How does the encoding depend on the temporal horizon?
 A random-weight LSTM control shows that temporal structure is weak before training (CKA $\approx 0$, phase accuracy at chance) but emerges reliably after RL training.
-Multi-seed experiments ($T = 4$, 5 seeds) reveal that the learned encoding is \emph{non-unique}: all agents achieve perfect timestep prediction (R$^2 = 1.0$) yet exhibit different CKA profiles---the highest-CKA engineered encoding varies across seeds from sinusoidal positional encoding to phase-based encoding.
+Multi-seed experiments ($T = 4$, 5 seeds) reveal that the learned encoding is \emph{non-unique}: all agents achieve perfect timestep prediction (R$^2 = 1.0$) yet exhibit different CKA profiles. The highest-CKA engineered encoding varies across seeds: sinusoidal positional encoding dominates in 4 of 5 seeds (CKA $0.64$--$0.74$), while seed 456 aligns more strongly with phase-based encoding (CKA $= 0.62$).
 A controlled horizon manipulation ($T \in \{4, 8, 16, 32\}$, 5 seeds each) shows that representation similarity is \emph{horizon-sensitive}: CKA with raw scalar encoding increases from $0.40 \pm 0.10$ at $T = 4$ to $0.70 \pm 0.22$ at $T = 32$, while sinusoidal PE decreases from $0.63 \pm 0.09$ to $0.50 \pm 0.08$.
 These findings challenge the implicit assumption that recurrent networks converge to a single canonical temporal code; the framing of time in learned representations is contingent on both initialization and task structure.
 \end{abstract}
@@ -54,13 +54,13 @@ These findings challenge the implicit assumption that recurrent networks converg
 RL researchers typically assume the hidden state of a recurrent network is a unified representation of the agent's situation---including elapsed time.
 But when no clock signal is provided, the agent has to \emph{construct its own framing} of the temporal dimension.
 This invites a question: given a well-defined POMDP, do trained agents converge to a \emph{canonical} temporal code---a unique, reproducible internal clock?
-Our answer is no: different training runs produce different temporal codes despite identical behavioral performance.
+The answer is no: different training runs produce different temporal codes despite identical behavioral performance.
 
 Prior work has established that time cells emerge in RNN-based RL agents, analogous to hippocampal time cells \citep{macdonald2011hippocampal,lin2023timecells}.
 In NLP, the form of positional encoding---sinusoidal, learned, or relative---has been a central design choice in the Transformer architecture \citep{vaswani2017attention}.
-Less is known about the \emph{variability and contingency} of such representations in recurrent RL agents.
+The \emph{variability and contingency} of such representations in recurrent RL agents has received less attention.
 
-We address three concrete questions:
+We study three questions:
 \begin{enumerate}
 \setlength{\itemsep}{0pt}
 \item[(Q1)] Does temporal structure emerge through training, or is it inherent to recurrent architectures?
@@ -70,8 +70,8 @@ We address three concrete questions:
 
 We study these questions by training LSTM agents on DoorGrid, an environment with periodic dynamics, and comparing their hidden states against a library of engineered temporal encodings using Centered Kernel Alignment (CKA) \citep{kornblith2019cka}, complemented by linear probing, PCA, and single-neuron phase selectivity analysis.
 
-Our central finding is that the temporal framing learned by LSTM agents is \emph{non-unique}: agents with identical task performance align differently with simple engineered temporal codes, and the preferred alignment shifts with temporal horizon.
-This calls into question how we interpret and compare recurrent representations across training runs---if there is no single canonical code, what exactly are we comparing?
+The temporal framing learned by LSTM agents is \emph{non-unique}: agents with identical task performance align differently with simple engineered temporal codes, and the preferred alignment shifts with temporal horizon.
+This challenges how we interpret and compare recurrent representations across training runs---if there is no single canonical code, what exactly are we comparing?
 
 \section{Related Work}
 
@@ -108,7 +108,7 @@ The reward is $+1$ for reaching the goal (top-right corner), $-1$ for stepping i
 Episodes terminate upon reaching the goal, hitting a hazard, or exceeding a step limit.
 For horizon scaling, we vary $T \in \{4, 8, 16, 32\}$; the door is open during the first half of each period and closed during the second half.
 
-We chose this minimal environment deliberately: the periodic temporal structure is the agent's primary challenge, letting us isolate temporal encoding from complex spatial navigation.
+This minimal environment isolates temporal encoding from complex spatial navigation: the periodic structure is the agent's primary challenge.
 
 \subsection{Agents and Training}
 
@@ -164,8 +164,8 @@ Untrained         & 0.304 & 0.298 & 0.153 & 0.082 & N/A \\
 
 Table~\ref{tab:main} speaks to Q1.
 Trained LSTMs show strong temporal encoding (R$^2 = 1.0$, CKA $= 0.74$, phase accuracy 1.0) while untrained LSTMs show CKA $\approx 0$ and phase accuracy at chance ($0.30$ for 4 classes).
-The temporal structure we measure is largely training-dependent rather than a mere artifact of random recurrent dynamics.
-As expected, the MLP baseline (which lacks recurrence) fails to learn the task (Return $= -2.0$ across all 5 seeds, R$^2(t) \approx 0$), confirming that temporal tracking requires recurrent state.
+Temporal structure is training-dependent, not an artifact of random recurrent dynamics.
+The MLP baseline (which lacks recurrence) fails to learn the task (Return $= -2.0$ across all 5 seeds, R$^2(t) \approx 0$), confirming that temporal tracking requires recurrent state.
 
 \subsection{The Temporal Framing Is Not Unique (Q2)}
 \label{sec:degenerate}
@@ -233,7 +233,7 @@ At $T = 8$, seed 42 shows highest CKA with raw scalar ($0.81$) while seeds 123/4
 At $T = 16$, seed 1024 matches raw scalar ($0.84$) while seed 789 matches remaining time ($0.77$).
 The framing of time is not an artifact of a single period length.
 
-Note that at $T = 32$, training becomes less stable: 2 of 5 seeds fail to converge, and task return drops to $0.640$ (see Appendix~\ref{app:failed} for failed-seed training curves).
+At $T = 32$, training becomes less stable: 2 of 5 seeds fail to converge, and task return drops to $0.640$ (see Appendix~\ref{app:failed} for failed-seed training curves).
 The CKA shift at long horizons may partly reflect optimization difficulty rather than purely representational adaptation.
 
 \begin{figure}[t]
@@ -287,33 +287,33 @@ coordinates {
 
 LSTM-based RL agents do not converge to a single canonical temporal code.
 The code they learn depends on their initialization, and which engineered encoding it resembles shifts with the task's temporal horizon.
-These findings have implications at several levels.
+These findings have implications for how we interpret recurrent representations.
 
-\textbf{Conceptual implication: no canonical internal clock.}
+\textbf{No canonical internal clock.}
 The assumption that recurrent networks provide a unified, well-defined temporal code is embedded in much of RL practice---for example, when comparing representations across seeds or architectures, or when interpreting hidden states as encoding specific task variables.
 Our results indicate that, at least in simple periodic environments, this assumption does not hold: the framing of time is contingent on optimization path and task structure.
 This has direct methodological implications: a study using only seed 42 would conclude ``LSTMs encode time via sinusoidal-like codes,'' while a study using only seed 456 would conclude ``LSTMs encode time via phase-based codes.''
 Neither generalizes.
 
-\textbf{Implications for interpretability.}
-The representational plurality we observe raises a deeper question for RL interpretability: if the temporal code is not unique, what does it mean to ``interpret'' a neuron as a time cell?
+\textbf{Interpretability.}
+The representational plurality we observe raises a question for RL interpretability: if the temporal code is not unique, what does it mean to ``interpret'' a neuron as a time cell?
 The same functional role (phase discrimination) is implemented by different neuronal subpopulations across seeds.
-This is consistent with \citet{edelman2001degeneracy}'s concept of degeneracy---structurally different elements performing the same function---and suggests that single-seed interpretability analyses may be misleading.
+This matches \citet{edelman2001degeneracy}'s concept of degeneracy---structurally different elements performing the same function---and suggests that single-seed interpretability analyses may be misleading.
 
-\textbf{Conceptual implications: what does ``representation'' mean in RL?}
+\textbf{What does ``representation'' mean in RL?}
 If temporal codes are non-unique, then ``what the agent has learned'' is not a well-defined mapping from task to internal code, but one of many functionally equivalent solutions.
 This is Edelman's \emph{degeneracy} (many-to-one structure-to-function mapping), not mere \emph{redundancy} (duplicate copies of the same structure): the solutions differ qualitatively, not just numerically.
-If the representational code is path-dependent, then representation analysis characterizes one among many valid solutions, not a canonical internal structure.
-Whether this plurality is a nuisance for interpretability or a genuine feature of learning systems remains an open question.
+If the code is path-dependent, then any single-seed analysis characterizes one solution among many, not a canonical internal structure.
+Whether this plurality is a nuisance for interpretability or a genuine feature of learning systems is open.
 
 \textbf{Scope and limitations.}
 We do not claim a universal taxonomy of temporal coding in RL.
-Instead, we isolate a simple setting where temporal structure can be varied in a controlled way and representation geometry inspected directly.
-Three caveats are worth flagging.
+Instead, we isolate one setting where temporal structure can be controlled and representation geometry inspected directly.
+Three caveats:
 First, our experiments use one environment, one algorithm (REINFORCE), and one architecture (single-layer LSTM).
 Second, at $T = 32$, training instability (2/5 seeds fail) limits the horizon analysis.
 Third, CKA measures linear similarity and may miss nonlinear encoding strategies.
-Future work should investigate whether representational plurality persists across architectures (GRUs, attention-based models) and in more complex domains.
+Whether representational plurality persists across architectures (GRUs, attention-based models) and in more complex domains remains to be tested.
 
 \bibliographystyle{plainnat}
 \bibliography{temporal_repr_refs}
