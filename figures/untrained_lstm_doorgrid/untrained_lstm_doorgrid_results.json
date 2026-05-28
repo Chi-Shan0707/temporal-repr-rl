@@ -1,0 +1,75 @@
+{
+  "experiment": "untrained_lstm_doorgrid",
+  "probe_timestep": {
+    "r2": 0.30376023054122925,
+    "r2_shuffled": 0.004109561443328857,
+    "top_dims": [
+      19,
+      34,
+      63,
+      50,
+      41
+    ],
+    "n_samples": 40000
+  },
+  "probe_phase": {
+    "accuracy": 0.298375,
+    "accuracy_shuffled": 0.251875,
+    "n_classes": 4
+  },
+  "fourier": {
+    "dominant_freqs": [
+      0.014705882352941176
+    ],
+    "dominant_powers": [
+      7.826609208638028e-08
+    ],
+    "env_period_power": 1.67727627468301e-09,
+    "env_period_freq": 0.25,
+    "spectral_centroid": 0.00750808970121088,
+    "top_freq_dims": [
+      10,
+      58,
+      21,
+      37,
+      31
+    ],
+    "n_episodes_analyzed": 200
+  },
+  "pca": {
+    "pc1_timestep_corr": -0.4084370784048344,
+    "pc2_timestep_corr": 0.061011470782103526,
+    "pc1_phase_corr": -0.031573028309133395,
+    "explained_variance_ratio": [
+      0.8038787245750427,
+      0.0777398869395256,
+      0.0649217739701271,
+      0.022000212222337723,
+      0.01172326784580946,
+      0.008931735530495644,
+      0.006138492841273546,
+      0.0031717538367956877,
+      0.0010966521222144365,
+      0.0002319993218407035
+    ],
+    "pc1_explained_variance": 0.8038787245750427
+  },
+  "cka": {
+    "raw_scalar": 0.1534232746036084,
+    "sinusoidal_pe": 0.11016593128442764,
+    "phase_sin_cos": 9.48097175480128e-05,
+    "onehot_phase": 0.00023805288947187364,
+    "remaining_time": 0.1534232746036084
+  },
+  "mi_binning": {
+    "mi": 0.24507915570652947,
+    "mi_normalized": 0.08180943199432822,
+    "h_t": 2.995732273553991,
+    "n_bins": 20
+  },
+  "mi_ksg": {
+    "mi": 0.0,
+    "k": 5,
+    "n_samples": 3000
+  }
+}

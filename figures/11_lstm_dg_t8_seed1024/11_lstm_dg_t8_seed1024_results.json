@@ -1,0 +1,71 @@
+{
+  "experiment": "11_lstm_dg_t8_seed1024",
+  "probe_timestep": {
+    "r2": 0.9999959468841553,
+    "r2_shuffled": 0.02450329065322876,
+    "top_dims": [
+      3,
+      59,
+      27,
+      9,
+      15
+    ],
+    "n_samples": 2600
+  },
+  "probe_phase": {
+    "accuracy": 1.0,
+    "accuracy_shuffled": 0.0,
+    "n_classes": 8
+  },
+  "fourier": {
+    "dominant_freqs": [],
+    "dominant_powers": [],
+    "env_period_power": 0.02245958603243769,
+    "env_period_freq": 0.125,
+    "spectral_centroid": 0.1372681681317289,
+    "top_freq_dims": [
+      47,
+      10,
+      45,
+      0,
+      39
+    ],
+    "n_episodes_analyzed": 200
+  },
+  "pca": {
+    "pc1_timestep_corr": -0.5059345599372951,
+    "pc2_timestep_corr": -0.8543427247210955,
+    "pc1_phase_corr": 0.2631938282420117,
+    "explained_variance_ratio": [
+      0.5532677173614502,
+      0.36701270937919617,
+      0.03545652702450752,
+      0.021539902314543724,
+      0.01025709230452776,
+      0.006933480966836214,
+      0.0026614300440996885,
+      0.0017998506082221866,
+      0.0005278908065520227,
+      0.0004597127845045179
+    ],
+    "pc1_explained_variance": 0.5532677173614502
+  },
+  "cka": {
+    "raw_scalar": 0.6191595330759896,
+    "sinusoidal_pe": 0.6088210940361023,
+    "phase_sin_cos": 0.20282250655868816,
+    "onehot_phase": 0.13878172636032104,
+    "remaining_time": 0.6191595330759896
+  },
+  "mi_binning": {
+    "mi": 2.564949357461537,
+    "mi_normalized": 1.0,
+    "h_t": 2.564949357461537,
+    "n_bins": 20
+  },
+  "mi_ksg": {
+    "mi": 0.0,
+    "k": 5,
+    "n_samples": 2600
+  }
+}
