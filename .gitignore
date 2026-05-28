@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.DS_Store
+*.log
+*.aux
+*.bbl
+*.blg
+*.out
+*.synctex.gz
+EXPERIMENT_CONCLUSIONS.md
+PROGRESS_REPORT.md
+REVISION_PLAN.md
+REVISION_STATUS.md
