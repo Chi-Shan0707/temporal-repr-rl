@@ -13,6 +13,7 @@ Encoding modes:
 """
 
 from __future__ import annotations
+from pathlib import Path
 
 import sys
 import numpy as np
@@ -20,7 +21,7 @@ import gymnasium as gym
 from gymnasium import spaces
 
 # Import existing temporal environments
-sys.path.insert(0, "/mnt/d/CS/ReinforcementLearning/undo_gap")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from reproduction.experiments.temporal_environments import (
     FrozenLake, DoorGridLarge, SokobanGate,
     UP, DOWN, LEFT, RIGHT,

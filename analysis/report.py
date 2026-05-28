@@ -16,8 +16,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-sys.path.insert(0, "/mnt/d/CS/ReinforcementLearning/undo_gap/temporal_repr")
-sys.path.insert(0, "/mnt/d/CS/ReinforcementLearning/undo_gap")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from temporal_repr.analysis.linear_probe import linear_probe_timestep, linear_probe_phase
 from temporal_repr.analysis.fourier import fourier_analysis
 from temporal_repr.analysis.pca_vis import pca_analysis

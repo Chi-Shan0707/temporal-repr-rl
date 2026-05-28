@@ -165,7 +165,7 @@ Untrained         & 0.304 & 0.298 & 0.153 & 0.082 & N/A \\
 Table~\ref{tab:main} speaks to Q1.
 Trained LSTMs show strong temporal encoding (R$^2 = 1.0$, CKA $= 0.74$, phase accuracy 1.0) while untrained LSTMs show CKA $\approx 0$ and phase accuracy at chance ($0.30$ for 4 classes).
 The temporal structure we measure is largely training-dependent rather than a mere artifact of random recurrent dynamics.
-As expected, the MLP baseline (which lacks recurrence) fails to learn the task (Return $= -2.0$, R$^2 < 0.04$), confirming that temporal tracking requires recurrent state.
+As expected, the MLP baseline (which lacks recurrence) fails to learn the task (Return $= -2.0$ across all 5 seeds, R$^2(t) \approx 0$), confirming that temporal tracking requires recurrent state.
 
 \subsection{The Temporal Framing Is Not Unique (Q2)}
 \label{sec:degenerate}

@@ -9,9 +9,9 @@ import matplotlib.colors as mcolors
 from pathlib import Path
 from sklearn.decomposition import PCA
 
-FIGDIR = Path("/mnt/d/CS/ReinforcementLearning/undo_gap/temporal_repr/paper/figures")
+FIGDIR = Path(__file__).resolve().parent / "figures"
 FIGDIR.mkdir(exist_ok=True)
-DATADIR = Path("/mnt/d/CS/ReinforcementLearning/undo_gap/temporal_repr/figures")
+DATADIR = Path(__file__).resolve().parent.parent / "figures"
 
 SEEDS = [42, 123, 456, 789, 1024]
 ENCODING_NAMES = ["raw_scalar", "sinusoidal_pe", "phase_sin_cos", "onehot_phase"]

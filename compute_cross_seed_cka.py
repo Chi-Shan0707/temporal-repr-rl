@@ -1,10 +1,11 @@
+from pathlib import Path
 """
 Compute cross-seed CKA matrix for DoorGrid T=4.
 Collects hidden states from each of 5 seeds and computes pairwise CKA.
 """
 
 import sys
-sys.path.insert(0, "/mnt/d/CS/ReinforcementLearning/undo_gap/temporal_repr")
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import numpy as np
 import torch
@@ -12,7 +13,7 @@ from environments.env_factory import make_env
 from agents.lstm_policy import LSTMActorCritic
 from temporal_repr.analysis.cka import linear_cka
 from temporal_repr.environments.wrappers import TemporalObsWrapper
-sys.path.insert(0, "/mnt/d/CS/ReinforcementLearning/undo_gap")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from reproduction.experiments.temporal_environments import DoorGridLarge
 
 SEEDS = [42, 123, 456, 789, 1024]

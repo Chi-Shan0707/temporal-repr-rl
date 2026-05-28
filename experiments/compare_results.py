@@ -16,7 +16,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
-BASE_DIR = Path("/mnt/d/CS/ReinforcementLearning/undo_gap/temporal_repr")
+BASE_DIR = Path(__file__).resolve().parent.parent
 FIGURES_DIR = BASE_DIR / "figures"
 
 

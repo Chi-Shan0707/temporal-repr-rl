@@ -19,15 +19,15 @@ import sys
 import time
 from pathlib import Path
 
-sys.path.insert(0, "/mnt/d/CS/ReinforcementLearning/undo_gap/temporal_repr")
-sys.path.insert(0, "/mnt/d/CS/ReinforcementLearning/undo_gap")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from temporal_repr.agents.train import train
 from temporal_repr.analysis.collect import collect_hidden_states
 from temporal_repr.analysis.report import full_analysis
 
 
-BASE_DIR = Path("/mnt/d/CS/ReinforcementLearning/undo_gap/temporal_repr")
+BASE_DIR = Path(__file__).resolve().parent.parent
 RESULTS_DIR = BASE_DIR / "results"
 FIGURES_DIR = BASE_DIR / "figures"
 

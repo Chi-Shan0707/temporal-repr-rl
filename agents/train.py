@@ -6,10 +6,10 @@ Uses episode-level REINFORCE: collect trajectory, re-evaluate, compute loss.
 """
 
 from __future__ import annotations
+from pathlib import Path
 
 import sys
 import time
-from pathlib import Path
 from collections import defaultdict
 
 import numpy as np
@@ -17,8 +17,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-sys.path.insert(0, "/mnt/d/CS/ReinforcementLearning/undo_gap/temporal_repr")
-sys.path.insert(0, "/mnt/d/CS/ReinforcementLearning/undo_gap")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from temporal_repr.environments.env_factory import make_env
 from temporal_repr.agents.lstm_policy import LSTMActorCritic
 from temporal_repr.agents.mlp_policy import MLPActorCritic

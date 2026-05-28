@@ -7,9 +7,10 @@ Usage:
 """
 
 from __future__ import annotations
+from pathlib import Path
 
 import sys
-sys.path.insert(0, "/mnt/d/CS/ReinforcementLearning/undo_gap")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from .wrappers import TemporalObsWrapper
 from reproduction.experiments.temporal_environments import (

@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 import torch
 
-sys.path.insert(0, "/mnt/d/CS/ReinforcementLearning/undo_gap/temporal_repr")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from environments.env_factory import make_env
 from agents.lstm_policy import LSTMActorCritic
 from agents.mlp_policy import MLPActorCritic

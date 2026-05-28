@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 analysis/cka.py — Centered Kernel Alignment (CKA) for comparing representations.
 
@@ -10,11 +11,11 @@ Compares learned LSTM hidden states against engineered temporal encodings:
 CKA ≈ 1.0 means representations are similar (up to orthogonal rotation).
 """
 
-from __future__ import annotations
+from pathlib import Path
 
 import numpy as np
 import sys
-sys.path.insert(0, "/mnt/d/CS/ReinforcementLearning/undo_gap/temporal_repr")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from temporal_repr.environments.wrappers import sinusoidal_encode
 
 
