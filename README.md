@@ -6,12 +6,11 @@
 
 [![Paper](https://img.shields.io/badge/Paper-PDF-red)](paper/temporal_repr.pdf)
 [![License](https://img.shields.io/badge/License-MIT-green)]()
+[**中文**](README_CN.md)
 
 </div>
 
 ---
-
-**English** | [中文](#中文版)
 
 ## TL;DR
 
@@ -32,7 +31,7 @@ Same behavior, different internal clocks.
 As temporal horizon increases, the agent's representation shifts from sinusoidal-like to scalar-like encoding:
 
 <p align="center">
-<img src="paper/figures/fig3_horizon_sensitivity.png" width="500">
+<img src="paper/figures/fig3_horizon_sensitivity.png" width="480">
 </p>
 
 ## Repository Structure
@@ -67,68 +66,15 @@ python run_all.py --phase figures   # Generate figures
 ## Paper
 
 - **Title**: Do Recurrent RL Agents Discover a Unique Internal Clock? Evidence Against a Canonical Temporal Code
-- **Venue**: Finding the Frame Workshop @ RLC 2026
 - **PDF**: [`paper/temporal_repr.pdf`](paper/temporal_repr.pdf)
 
 ## Citation
 
 ```bibtex
-@inproceedings{temporal_repr_2026,
+@article{temporal_repr_2026,
   title={Do Recurrent RL Agents Discover a Unique Internal Clock? Evidence Against a Canonical Temporal Code},
   author={Anonymous},
-  booktitle={Finding the Frame Workshop at Reinforcement Learning Conference},
-  year={2026}
-}
-```
-
----
-
-<a id="中文版"></a>
-
-# 循环 RL 智能体会发现唯一的内部时钟吗？
-
-**反对规范时间编码的证据**
-
-<div align="right"><a href="#top">English</a></div>
-
-## 一句话总结
-
-我们在周期性任务上训练 LSTM 智能体，发现**不同的随机种子产生根本不同的时间内部表征**——尽管行为表现完全相同。不存在单一的"规范"时间编码。
-
-## 核心发现
-
-| | Seed 42 | Seed 456 |
-|---|---|---|
-| **Return** | 0.920 | 0.920 |
-| **R²(时间步)** | 1.000 | 1.000 |
-| **最匹配的编码** | 正弦 PE (0.74) | 相位 sin/cos (0.62) |
-
-相同的行为，不同的内部时钟。
-
-## 时间范围效应
-
-随着时间范围增加，智能体的表征从正弦编码转向标量编码：
-
-<p align="center">
-<img src="paper/figures/fig3_horizon_sensitivity.png" width="500">
-</p>
-
-## 快速开始
-
-```bash
-conda activate rlenv
-python run_all.py --phase all       # 一键复现
-python run_all.py --phase train     # 仅训练
-python run_all.py --phase analyze   # 仅分析
-```
-
-## 引用
-
-```bibtex
-@inproceedings{temporal_repr_2026,
-  title={Do Recurrent RL Agents Discover a Unique Internal Clock? Evidence Against a Canonical Temporal Code},
-  author={Anonymous},
-  booktitle={Finding the Frame Workshop at Reinforcement Learning Conference},
+  journal={arXiv preprint},
   year={2026}
 }
 ```
