@@ -37,16 +37,17 @@ These findings challenge the implicit assumption that recurrent networks discove
 \maketitle
 
 \begin{abstract}
-Recurrent RL agents that must track time without an explicit clock have to invent their own internal framing of the temporal dimension.
-A natural assumption is that this framing is unique: any sufficiently trained agent converges to the same canonical temporal code.
-We show this assumption does not hold: LSTM agents trained on the same periodic task construct different internal representations of time depending on their random initialization.
-Using Centered Kernel Alignment (CKA) against engineered temporal encodings, linear probing, and PCA on DoorGrid, an environment with periodic dynamics, we ask three questions: (Q1) Is temporal structure learned or inherent to recurrence?
+Recurrent RL agents without an explicit clock must invent their own internal representation of time.
+A natural assumption is that this representation is unique: any sufficiently trained agent converges to the same canonical temporal code.
+We show this assumption does not hold.
+LSTM agents trained on the same periodic task construct different temporal codes depending on their random initialization, despite identical behavioral performance.
+Using Centered Kernel Alignment (CKA) against engineered temporal encodings, linear probing, and PCA on a periodic gridworld, we ask three questions: (Q1) Is temporal structure learned or inherent to recurrence?
 (Q2) Is the emergent encoding unique across training runs?
 (Q3) How does the encoding depend on the temporal horizon?
-A random-weight LSTM control shows that temporal structure is weak before training (CKA $\approx 0$, phase accuracy at chance) but emerges reliably after RL training.
-Multi-seed experiments ($T = 4$, 5 seeds) reveal that the learned encoding is \emph{non-unique}: all agents achieve perfect timestep prediction (R$^2 = 1.0$) yet exhibit different CKA profiles. The highest-CKA engineered encoding varies across seeds: sinusoidal positional encoding dominates in 4 of 5 seeds (CKA $0.64$--$0.74$), while seed 456 aligns more strongly with phase-based encoding (CKA $= 0.62$).
-A controlled horizon manipulation ($T \in \{4, 8, 16, 32\}$, 5 seeds each) shows that representation similarity is \emph{horizon-sensitive}: CKA with raw scalar encoding increases from $0.40 \pm 0.10$ at $T = 4$ to $0.70 \pm 0.22$ at $T = 32$, while sinusoidal PE decreases from $0.63 \pm 0.09$ to $0.50 \pm 0.08$.
-These findings challenge the implicit assumption that recurrent networks converge to a single canonical temporal code; the framing of time in learned representations is contingent on both initialization and task structure.
+Untrained LSTM controls show weak temporal structure, which emerges reliably after RL training.
+Multi-seed experiments reveal that the learned encoding is \emph{non-unique}: the highest-CKA engineered encoding varies across seeds, from sinusoidal positional encoding to phase-based encoding.
+A controlled horizon manipulation shows that the encoding is also \emph{horizon-sensitive}: at short horizons, agents align with sinusoidal codes; at longer horizons, alignment shifts toward scalar encoding.
+These findings hold implications for how we interpret recurrent representations: if there is no single canonical temporal code, single-seed representational analyses may not generalize.
 \end{abstract}
 
 \section{Introduction}
@@ -287,7 +288,7 @@ coordinates {
 
 LSTM-based RL agents do not converge to a single canonical temporal code.
 The code they learn depends on their initialization, and which engineered encoding it resembles shifts with the task's temporal horizon.
-These findings have implications for how we interpret recurrent representations.
+These findings hold implications for how we interpret recurrent representations.
 
 \textbf{No canonical internal clock.}
 The assumption that recurrent networks provide a unified, well-defined temporal code is embedded in much of RL practice---for example, when comparing representations across seeds or architectures, or when interpreting hidden states as encoding specific task variables.
