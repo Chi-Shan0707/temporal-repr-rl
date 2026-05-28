@@ -5,7 +5,6 @@
 **Evidence Against a Canonical Temporal Code**
 
 [![Paper](https://img.shields.io/badge/Paper-PDF-red)](paper/temporal_repr.pdf)
-[![Workshop](https://img.shields.io/badge/Workshop-Finding%20the%20Frame%20%40%20RLC%202026-blue)]()
 [![License](https://img.shields.io/badge/License-MIT-green)]()
 
 </div>
